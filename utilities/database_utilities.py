@@ -24,10 +24,17 @@ def create_database(database_path=DEFAULT_PATH):
     conn = sqlite3.connect(database_path)
     with conn:
         cur = conn.cursor()
-        for table in TABLE_list:
-            cur.execute("DROP TABLE if exists " + table)
         for ddl in ddl_list:
             cur.execute(ddl)
+    conn.close()
+
+
+def drop_tables(database_path=DEFAULT_PATH):
+    conn = sqlite3.connect(database_path)
+    with conn:
+        cur = conn.cursor()
+        for table in TABLE_list:
+            cur.execute("DROP TABLE if exists " + table)
     conn.close()
 
 
@@ -49,5 +56,14 @@ def execute_query(sql: str, database_path=DEFAULT_PATH):
     with conn:
         cur = conn.cursor()
         cur.execute(sql)
-        return cur.fetchall()
+        return cur.fetchall()  # Add an index[0][0] to get single value
 
+
+def count_records_in_database(table, market_id, contract_id, date_value):
+    print(table, market_id, contract_id, date_value)
+    sql = "SELECT COUNT(1) FROM " + table + " WHERE MarketID=" + market_id + " AND ContractID=" + contract_id + " AND Date=" + date_value
+    return execute_query(sql)
+
+
+# print(execute_query("SELECT COUNT(1) FROM price_history WHERE MarketID = 99999")[0][0])
+# print(count_records_in_database("price_hourly", "2721", "4390", r"'2019-02-19T17:00:00'")[0][0])
